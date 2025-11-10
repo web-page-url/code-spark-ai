@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Enhanced environment configuration with security
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const SITE_URL = process.env.SITE_URL || 'http://localhost:3000';
 const SITE_NAME = process.env.SITE_NAME || 'AI Coding Assistant';
 const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '60');
@@ -274,7 +275,7 @@ export async function POST(request: NextRequest) {
 
     // Default options
     const modelOptions = {
-      model: 'agentica-org/deepcoder-14b-preview:free',
+      model: 'gemini-1.0-pro',
       temperature: 0.7,
       max_tokens: 4000,
       ...options
@@ -304,31 +305,55 @@ export async function POST(request: NextRequest) {
       }, { status: 429 });
     }
 
-    console.log('🔗 Connecting to AI service...');
-    
-    // Make request to AI service (OpenRouter)
-    const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
-        'X-Title': 'AI Coding Assistant',
-      },
-      body: JSON.stringify({
-        model: modelOptions.model,
-        messages: enhancedMessages,
-        temperature: modelOptions.temperature,
-        max_tokens: modelOptions.max_tokens,
-        stream: false,
-      }),
-    });
+    console.log('🔗 Connecting to Gemini AI service...');
 
-    if (!aiResponse.ok) {
-      throw new Error(`AI service error: ${aiResponse.status} ${aiResponse.statusText}`);
+    // Initialize Gemini AI
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not configured');
     }
 
-    const aiData = await aiResponse.json();
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    // Combine messages into a single prompt for Gemini
+    let fullPrompt = systemPrompt + '\n\n';
+
+    // Add conversation history (excluding system message)
+    const userMessages = messages.slice(-10); // Limit history to last 10 messages for Gemini
+    userMessages.forEach((msg, index) => {
+      if (msg.role === 'user') {
+        fullPrompt += `User: ${msg.content}\n\n`;
+      } else if (msg.role === 'assistant') {
+        fullPrompt += `Assistant: ${msg.content}\n\n`;
+      }
+    });
+
+    // Add current user message if not already included
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role === 'user') {
+      fullPrompt += `User: ${lastMessage.content}\n\nAssistant: `;
+    }
+
+    // Generate content with Gemini
+    const result = await model.generateContent(fullPrompt);
+
+    const response = result.response;
+    const aiContent = response.text();
+
+    // Format response to match expected structure
+    const aiData = {
+      choices: [{
+        message: {
+          content: aiContent,
+        },
+        finish_reason: 'stop'
+      }],
+      usage: {
+        prompt_tokens: Math.ceil(fullPrompt.length / 4), // Rough estimate
+        completion_tokens: Math.ceil(aiContent.length / 4), // Rough estimate
+        total_tokens: Math.ceil((fullPrompt.length + aiContent.length) / 4) // Rough estimate
+      }
+    };
     
     console.log('✅ AI service response received:', {
       requestId: requestId || 'unknown',
@@ -497,7 +522,7 @@ export async function GET() {
   const startTime = Date.now();
   
   try {
-    const hasApiKey = OPENROUTER_API_KEY && OPENROUTER_API_KEY !== 'your-api-key-here';
+    const hasApiKey = GEMINI_API_KEY && GEMINI_API_KEY !== 'your-api-key-here';
     
     return NextResponse.json({
       success: true,
