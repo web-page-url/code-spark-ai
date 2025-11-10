@@ -69,16 +69,16 @@ export const metadata: Metadata = {
     description: 'Transform ideas into professional web code instantly. AI-powered HTML, CSS & JavaScript generation with real-time preview and professional workflows.',
     images: [
       {
-        url: 'https://code-spark-ai.vercel.app/code-spark-1.png',
+        url: 'https://code-spark-ai.vercel.app/og-image.png',
         width: 1200,
         height: 630,
         alt: 'CodeSpark - AI Web Development Platform',
         type: 'image/png',
       },
       {
-        url: 'https://code-spark-ai.vercel.app/code-spark-1.png',
-        width: 1080,
-        height: 1080,
+        url: 'https://code-spark-ai.vercel.app/icon-512.png',
+        width: 512,
+        height: 512,
         alt: 'CodeSpark - AI Coding Assistant',
         type: 'image/png',
       },
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
     creator: '@AnubhavCodes',
     title: 'CodeSpark - AI Web Development Made Easy',
     description: 'Revolutionary AI platform for generating professional HTML, CSS & JavaScript. Built by Anubhav Chaudhary, IIT Mandi.',
-    images: ['https://code-spark-ai.vercel.app/code-spark-1.png'],
+    images: ['https://code-spark-ai.vercel.app/og-image.png'],
   },
   verification: {
     google: 'google-site-verification-token',
@@ -145,7 +145,7 @@ export default function RootLayout({
       name: 'CodeSpark',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://code-spark-ai.vercel.app/code-spark-1.png'
+        url: 'https://code-spark-ai.vercel.app/og-image.png'
       }
     },
     datePublished: '2025-01-02',
@@ -199,18 +199,21 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         
         {/* Enhanced Social Media Meta Tags */}
-        <meta property="og:image:secure_url" content="https://code-spark-ai.vercel.app/code-spark-1.png" />
+        <meta property="og:image:secure_url" content="https://code-spark-ai.vercel.app/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:video" content="" />
         <meta property="og:audio" content="" />
         <meta property="og:determiner" content="the" />
         <meta property="og:locale:alternate" content="en_GB" />
         <meta property="og:locale:alternate" content="es_ES" />
-        
+
         {/* Twitter Enhanced */}
-        <meta name="twitter:image" content="https://code-spark-ai.vercel.app/code-spark-1.png" />
+        <meta name="twitter:image" content="https://code-spark-ai.vercel.app/og-image.png" />
         <meta name="twitter:image:alt" content="CodeSpark - AI Web Development Platform" />
+        <meta name="twitter:image:width" content="1200" />
+        <meta name="twitter:image:height" content="630" />
         <meta name="twitter:player" content="" />
         <meta name="twitter:player:width" content="1200" />
         <meta name="twitter:player:height" content="630" />
